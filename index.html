@@ -1448,19 +1448,45 @@ async function deleteSingle(id){
 }
 
 async function exportCSV(){
-  const arr=await getData();
-  const headers=["Họ tên","SĐT","Khoa","Lớp","Khóa","Ban đã chọn","Lý do","Điểm mạnh","Muốn học hỏi","Thời gian"];
-  const rows=arr.map(x=>[
-    x.name,x.phone,x.faculty,x.className,x.course,
-    (x.bans||[]).join(" | "),
-    x.reason,x.strengths,x.expectation,x.updatedAt || x.createdAt
+  const arr = await getData();
+  const headers = [
+    "Họ tên",
+    "SĐT",
+    "Khoa",
+    "Lớp",
+    "Khóa",
+    "Ban đăng ký (Nguyện vọng)",
+    "Ban được chốt chính thức",
+    "Trạng thái duyệt",
+    "Lý do lựa chọn ban",
+    "Điểm mạnh & Kỹ năng",
+    "Mong muốn học hỏi",
+    "Thời gian"
+  ];
+
+  const rows = arr.map(x => [
+    x.name,
+    x.phone,
+    x.faculty,
+    x.className,
+    x.course,
+    (x.bans || []).join(" | "),
+    x.assignedBan || "Chưa chốt",
+    x.assignedBan ? "Đã chốt ban" : "Chưa chốt",
+    x.reason || "",
+    x.strengths || "",
+    x.expectation || "",
+    x.updatedAt || x.createdAt || ""
   ]);
-  const csv="\ufeff"+[headers,...rows]
-    .map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(","))
+
+  const csv = "\ufeff" + [headers, ...rows]
+    .map(r => r.map(v => `"${String(v || "").replace(/"/g, '""')}"`).join(","))
     .join("\n");
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  a.download="danh-sach-dang-ky-clb-2026.csv";
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.download = `danh-sach-ung-vien-clb-2026_${dateStr}.csv`;
   a.click();
 }
 
