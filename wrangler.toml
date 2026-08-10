@@ -1,0 +1,8 @@
+name = "trangcho"
+compatibility_date = "2026-08-10"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "trangcho-db"
+database_id = "81de8e29-a810-4f1c-b32c-cb1e6bfe6d72"
