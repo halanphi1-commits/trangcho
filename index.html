@@ -262,16 +262,18 @@ footer{color:#64748b}
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
   color:#1e293b;
-  padding:10px 20px;
+  padding:12px 24px;
   border-radius:16px;
   border:1px solid #93c5fd;
-  box-shadow:0 20px 40px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(18, 104, 196, 0.1);
+  box-shadow:0 20px 45px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(18, 104, 196, 0.1);
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:16px;
   z-index:9999;
   font-size:14px;
+  white-space:nowrap;
   animation:slideUp .25s ease-out;
+  max-width:calc(100vw - 32px);
 }
 @keyframes slideUp {
   from { transform: translate(-50%, 20px); opacity: 0; }
@@ -280,35 +282,41 @@ footer{color:#64748b}
 .bulk-count-badge{
   background:#1e3a8a;
   color:#ffffff;
-  padding:5px 12px;
+  padding:6px 16px;
   border-radius:999px;
-  font-weight:800;
-  font-size:13px;
+  font-weight:700;
+  font-size:14px;
   display:inline-flex;
   align-items:center;
-  gap:4px;
+  gap:6px;
+  white-space:nowrap;
+  flex-shrink:0;
 }
 .bulk-bar select{
-  min-height:38px;
-  padding:4px 12px;
+  min-height:40px;
+  min-width:240px;
+  padding:6px 14px;
   border-radius:10px;
   background:#ffffff;
   color:#1e293b;
   border:1px solid #cbd5e1;
-  font-size:13px;
+  font-size:14px;
   font-weight:600;
   outline:none;
+  white-space:nowrap;
 }
 .bulk-bar select:focus{
   border-color:var(--blue);
   box-shadow:0 0 0 3px rgba(18, 104, 196, 0.12);
 }
 .bulk-bar .btn-sm{
-  min-height:38px;
-  padding:6px 14px;
-  font-size:13px;
+  min-height:40px;
+  padding:8px 18px;
+  font-size:14px;
   font-weight:700;
   border-radius:10px;
+  white-space:nowrap;
+  flex-shrink:0;
 }
 .btn-sm{
   min-height:32px;
