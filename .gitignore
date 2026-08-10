@@ -1,4 +1,5 @@
 local-server*.log
 index(*).html
+node_modules/
 .DS_Store
 Thumbs.db
