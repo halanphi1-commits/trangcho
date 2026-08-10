@@ -114,7 +114,7 @@ th{background:#f4f8fc;color:#365674}
   width:22px;
   height:22px;
   border:2px solid #b9c9d9;
-  border-radius:50%;
+  border-radius:6px;
   background:#fff;
 }
 .ban:has(input:checked)::after{
@@ -326,24 +326,24 @@ footer{color:#64748b}
         <div class="grid">
           <div class="field">
             <label>Họ và tên <i class="required">*</i></label>
-            <input name="name" required aria-label="Họ và tên" placeholder="pham thúy trang">
+            <input name="name" required aria-label="Họ và tên" placeholder="Tên của bạn ...">
           </div>
           <div class="field">
             <label>Số điện thoại <i class="required">*</i></label>
-            <input name="phone" required inputmode="tel" aria-label="Số điện thoại" placeholder="0327011851">
+            <input name="phone" required inputmode="tel" aria-label="Số điện thoại" placeholder="Nhập số điện thoại của bạn ...">
             <small style="color:#71869b;line-height:1.4">Nếu bạn đã đăng ký trước đó bằng SĐT này, lần gửi mới sẽ tự động cập nhật và thay thế phiếu cũ.</small>
           </div>
           <div class="field">
             <label>Khoa <i class="required">*</i></label>
-            <input name="faculty" required aria-label="Khoa" placeholder="thiết kế đồ họa">
+            <input name="faculty" required aria-label="Khoa" placeholder="Khoa ...">
           </div>
           <div class="field">
             <label>Lớp <i class="required">*</i></label>
-            <input name="className" required aria-label="Lớp" placeholder="6Q0101">
+            <input name="className" required aria-label="Lớp" placeholder="Lớp ...">
           </div>
           <div class="field">
             <label>Khóa <i class="required">*</i></label>
-            <input name="course" required aria-label="Khóa" placeholder="K50">
+            <input name="course" required aria-label="Khóa" placeholder="Khóa ...">
           </div>
           
         </div>
@@ -368,20 +368,20 @@ footer{color:#64748b}
         </div>
 
         <div class="section-title"><span>3</span> Bạn muốn tham gia ban nào?</div>
-        <div class="ban-note">Bạn chỉ chọn <b>1 ban</b> phù hợp nhất với mình.</div>
+        <div class="ban-note">Bạn có thể chọn tối đa <b>2 ban</b> phù hợp nhất với mình.</div>
         <div class="bans">
           <label class="ban blue">
-            <input type="radio" name="ban" value="Ban Truyền thông">
+            <input type="checkbox" name="ban" value="Ban Truyền thông">
             <strong>Ban Truyền thông</strong>
             <small>Chụp ảnh, quay video, thiết kế, sáng tạo nội dung.</small>
           </label>
           <label class="ban green">
-            <input type="radio" name="ban" value="Ban Hậu cần">
+            <input type="checkbox" name="ban" value="Ban Hậu cần">
             <strong>Ban Hậu cần</strong>
             <small>Tổ chức, sắp xếp, chuẩn bị vật dụng và hỗ trợ chương trình.</small>
           </label>
           <label class="ban red">
-            <input type="radio" name="ban" value="Ban Xung kích - Văn nghệ">
+            <input type="checkbox" name="ban" value="Ban Xung kích - Văn nghệ">
             <strong>Ban Xung kích - Văn nghệ</strong>
             <small>Biểu diễn, hoạt náo, giao lưu và lan tỏa năng lượng.</small>
           </label>
@@ -642,7 +642,11 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
   const selectedBans=[...document.querySelectorAll('.ban input[name="ban"]:checked')].map(x=>x.value);
   if(selectedBans.length===0){
-    alert("Bạn hãy chọn 1 ban phù hợp nhất.");
+    alert("Bạn hãy chọn ít nhất 1 ban phù hợp.");
+    return;
+  }
+  if(selectedBans.length>2){
+    alert("Bạn chỉ được chọn tối đa 2 ban.");
     return;
   }
 
@@ -669,6 +673,17 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
     btn.disabled=false;
     btn.textContent=oldText;
   }
+});
+
+const banCheckboxes = document.querySelectorAll('.ban input[name="ban"]');
+banCheckboxes.forEach(cb => {
+  cb.addEventListener('change', function() {
+    const checked = document.querySelectorAll('.ban input[name="ban"]:checked');
+    if (checked.length > 2) {
+      this.checked = false;
+      alert("Bạn chỉ được chọn tối đa 2 ban.");
+    }
+  });
 });
 
 function showAdmin(){
