@@ -22,7 +22,7 @@ Admin dashboard
 1. Create a Cloudflare Pages project from:
 
 ```text
-https://github.com/halanphi1-commits/trangcho
+https://github.com/halanphi1-commits/thuytrang
 ```
 
 2. Use these build settings:
@@ -37,13 +37,13 @@ Root directory: /
 3. Create a D1 database named:
 
 ```text
-trangcho-db
+thuytrang-db
 ```
 
 4. Run the schema:
 
 ```bash
-npx wrangler d1 execute trangcho-db --file=schema.sql
+npx wrangler d1 execute thuytrang-db --file=schema.sql
 ```
 
 You can also paste `schema.sql` into the Cloudflare dashboard D1 console.
@@ -52,7 +52,7 @@ You can also paste `schema.sql` into the Cloudflare dashboard D1 console.
 
 ```text
 Variable name: DB
-Database: trangcho-db
+Database: thuytrang-db
 ```
 
 6. Optional but recommended: set environment variables for Admin credentials:

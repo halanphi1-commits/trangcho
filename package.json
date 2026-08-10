@@ -1,11 +1,11 @@
 {
-  "name": "trangcho",
+  "name": "thuytrang",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "pages:dev": "wrangler pages dev .",
-    "pages:deploy": "wrangler pages deploy . --project-name trangcho",
-    "d1:init": "wrangler d1 execute trangcho-db --file=schema.sql"
+    "pages:deploy": "wrangler pages deploy . --project-name thuytrang",
+    "d1:init": "wrangler d1 execute thuytrang-db --file=schema.sql"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
