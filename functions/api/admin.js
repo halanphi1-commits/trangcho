@@ -32,10 +32,17 @@ async function ensureSchema(db){
       reason text not null default '',
       strengths text not null default '',
       expectation text not null default '',
+      assigned_ban text default null,
       created_at text not null,
       updated_at text not null
     )
   `).run();
+
+  try{
+    await db.prepare("alter table registrations add column assigned_ban text default null").run();
+  }catch(err){
+    // Column already exists or table freshly created
+  }
 }
 
 function rowToRegistration(row){
@@ -57,6 +64,7 @@ function rowToRegistration(row){
     reason: row.reason || "",
     strengths: row.strengths || "",
     expectation: row.expectation || "",
+    assignedBan: row.assigned_ban || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -85,6 +93,40 @@ export async function onRequestPost(context){
 
   if(body.action === "clear"){
     await db.prepare("delete from registrations").run();
+    return json({ok:true});
+  }
+
+  if(body.action === "assign_ban"){
+    const ids = Array.isArray(body.ids) ? body.ids : (body.id ? [body.id] : []);
+    if(ids.length > 0){
+      const assignedBan = body.assignedBan || null;
+      const now = new Date().toISOString();
+      const placeholders = ids.map(() => "?").join(",");
+      await db.prepare(`update registrations set assigned_ban = ?, updated_at = ? where id in (${placeholders})`)
+        .bind(assignedBan, now, ...ids).run();
+    }
+    return json({ok:true});
+  }
+
+  if(body.action === "change_bans"){
+    const ids = Array.isArray(body.ids) ? body.ids : (body.id ? [body.id] : []);
+    const newBan = body.newBan;
+    if(ids.length > 0 && newBan){
+      const bansJson = JSON.stringify([newBan]);
+      const now = new Date().toISOString();
+      const placeholders = ids.map(() => "?").join(",");
+      await db.prepare(`update registrations set bans = ?, assigned_ban = ?, updated_at = ? where id in (${placeholders})`)
+        .bind(bansJson, newBan, now, ...ids).run();
+    }
+    return json({ok:true});
+  }
+
+  if(body.action === "delete_items"){
+    const ids = Array.isArray(body.ids) ? body.ids : (body.id ? [body.id] : []);
+    if(ids.length > 0){
+      const placeholders = ids.map(() => "?").join(",");
+      await db.prepare(`delete from registrations where id in (${placeholders})`).bind(...ids).run();
+    }
     return json({ok:true});
   }
 

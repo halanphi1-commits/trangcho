@@ -253,6 +253,96 @@ tbody tr:last-child td{border-bottom:0}
 .empty{color:#64748b}
 footer{color:#64748b}
 
+.bulk-bar{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0f172a;
+  color:#fff;
+  padding:12px 20px;
+  border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  z-index:999;
+  font-size:14px;
+}
+.bulk-bar select{
+  min-height:36px;
+  padding:4px 8px;
+  border-radius:6px;
+  background:#1e293b;
+  color:#fff;
+  border:1px solid #334155;
+}
+.btn-sm{
+  min-height:32px;
+  padding:4px 10px;
+  font-size:13px;
+  border-radius:6px;
+  cursor:pointer;
+  border:1px solid #cbd9e8;
+  background:#fff;
+  color:#1e293b;
+  transition:.15s;
+}
+.btn-sm:hover{background:#f1f5f9}
+.btn-sm.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-sm.btn-success{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-sm.btn-danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-sm.btn-outline-danger{color:var(--red);border-color:#fca5a5;background:#fff}
+.btn-sm.btn-outline-danger:hover{background:#fef2f2}
+
+.pill.assigned{background:#dcfce7;color:#15803d;border:1px solid #86efac;font-weight:800}
+.pill.unassigned{background:#f1f5f9;color:#64748b}
+
+.expand-btn{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:13px;
+  color:#64748b;
+  transition:transform .2s ease;
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+}
+.expand-btn.open{transform:rotate(90deg);color:var(--blue)}
+
+.row-main{cursor:pointer}
+.row-main:hover{background:#f8fafc}
+.row-detail td{
+  background:#f8fafc;
+  padding:14px 18px;
+  border-bottom:1px solid #e2e8f0;
+}
+.detail-box{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:14px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  padding:14px;
+}
+.detail-item label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#64748b;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-bottom:4px;
+}
+.detail-item div{
+  color:#1e293b;
+  font-size:14px;
+  line-height:1.55;
+}
+
 @media(min-width:720px){
   .container{width:min(1120px,calc(100% - 48px))}
   .hero{padding:24px 0 70px}
@@ -481,6 +571,19 @@ footer{color:#64748b}
           <button class="secondary danger" onclick="clearAll()">Xóa toàn bộ dữ liệu</button>
         </div>
         <div id="groups"></div>
+      </div>
+
+      <div id="bulkBar" class="bulk-bar hidden">
+        <span>Đã chọn <b id="selectedCount">0</b> ứng viên</span>
+        <select id="bulkBanTarget" aria-label="Ban chuyển tới">
+          <option value="">-- Chọn ban chuyển đến --</option>
+          <option>Ban Truyền thông</option>
+          <option>Ban Hậu cần</option>
+          <option>Ban Xung kích - Văn nghệ</option>
+        </select>
+        <button class="btn-sm btn-primary" onclick="bulkChangeBan()">Đổi Ban</button>
+        <button class="btn-sm btn-danger" onclick="bulkDelete()">Xóa đã chọn</button>
+        <button class="btn-sm" style="background:#334155;color:#fff;border-color:#475569" onclick="deselectAll()">Bỏ chọn</button>
       </div>
     </div>
   </div>
@@ -883,7 +986,13 @@ function dedupeByPhone(list){
 function buildBanGroups(list){
   const banNames=["Ban Truyền thông","Ban Hậu cần","Ban Xung kích - Văn nghệ"];
   return banNames.map(ban=>{
-    const members=list.filter(x=>(x.bans||[]).includes(ban));
+    const members=list.filter(x=>{
+      if(x.assignedBan){
+        return x.assignedBan === ban;
+      }
+      return (x.bans||[]).includes(ban);
+    });
+
     const map=new Map();
     members.forEach(x=>{
       const key=`${norm(x.course)}|||${norm(x.className)}`;
@@ -926,14 +1035,14 @@ async function render(){
       out+=`<div style="margin:14px 0 18px">
         <b>Nhóm ${i+1} — ${g.length} bạn</b>
         <small style="color:#6c8298"> • ${esc(x.course||"Chưa rõ khóa")} • ${esc(x.className||"Chưa rõ lớp")}</small>
-        ${table(g)}
+        ${table(g, section.ban)}
       </div>`;
     });
 
     if(solo.length){
       out+=`<div style="margin-top:14px">
         <b>Chưa có bạn cùng lớp + khóa trong ban này — ${solo.length} bạn</b>
-        ${table(solo.flat())}
+        ${table(solo.flat(), section.ban)}
       </div>`;
     }
 
@@ -943,19 +1052,237 @@ async function render(){
   document.getElementById('groups').innerHTML=out || '<div class="empty">Chưa có dữ liệu đăng ký.</div>';
 }
 
-function table(arr){
+function toggleExpand(rowId){
+  const detailEl = document.getElementById(`detail_${rowId}`);
+  const arrowEl = document.getElementById(`arrow_${rowId}`);
+  if(!detailEl) return;
+  const isHidden = detailEl.classList.contains('hidden');
+  if(isHidden){
+    detailEl.classList.remove('hidden');
+    arrowEl?.classList.add('open');
+  }else{
+    detailEl.classList.add('hidden');
+    arrowEl?.classList.remove('open');
+  }
+}
+
+function handleRowClick(event, rowId){
+  if(event.target.tagName === 'INPUT' || event.target.tagName === 'BUTTON' || event.target.closest('button')) return;
+  toggleExpand(rowId);
+}
+
+function table(arr, sectionBan){
   return `<div class="table-wrap"><table><thead><tr>
-    <th>Họ tên</th><th>Khoa / Lớp</th><th>SĐT</th><th>Ban</th><th>Lý do</th><th>Điểm mạnh</th><th>Muốn học hỏi</th><th>Thời gian</th>
-  </tr></thead><tbody>${arr.map(x=>`<tr>
-    <td data-label="Họ tên"><b>${esc(x.name)}</b></td>
-    <td data-label="Khoa / Lớp">${esc(x.faculty)}<br><b>${esc(x.className)}</b> ${x.course?`• ${esc(x.course)}`:""}</td>
-    <td data-label="SĐT">${esc(x.phone)}</td>
-    <td data-label="Ban">${(x.bans||[]).map(b=>`<span class="pill">${esc(b)}</span>`).join(" ")}</td>
-    <td data-label="Lý do">${esc(x.reason || "Chưa nhập")}</td>
-    <td data-label="Điểm mạnh">${esc(x.strengths || "Chưa nhập")}</td>
-    <td data-label="Muốn học hỏi">${esc(x.expectation || "Chưa nhập")}</td>
-    <td data-label="Thời gian">${esc(x.updatedAt || x.createdAt)}</td>
-  </tr>`).join("")}</tbody></table></div>`;
+    <th style="width:36px;text-align:center"><input type="checkbox" onchange="toggleSelectGroup(this)" class="group-select-all" aria-label="Chọn tất cả trong nhóm"></th>
+    <th style="width:32px"></th>
+    <th>Họ tên</th><th>Khoa / Lớp</th><th>SĐT</th><th>Ban đăng ký</th><th>Trạng thái chốt</th><th>Thời gian</th><th style="text-align:right">Thao tác</th>
+  </tr></thead><tbody>${arr.map(x=>{
+    const rowId = `row_${(sectionBan||'').replace(/\s+/g,'_')}_${x.id}`;
+    const isAssignedToThis = x.assignedBan === sectionBan;
+    const registeredBans = Array.isArray(x.bans) ? x.bans : [];
+
+    return `
+    <tr class="row-main" onclick="handleRowClick(event, '${rowId}')">
+      <td style="text-align:center" onclick="event.stopPropagation()">
+        <input type="checkbox" class="row-select" value="${x.id}" onchange="updateBulkBar()">
+      </td>
+      <td>
+        <button type="button" id="arrow_${rowId}" class="expand-btn" onclick="event.stopPropagation(); toggleExpand('${rowId}')" title="Xem chi tiết">❯</button>
+      </td>
+      <td data-label="Họ tên">
+        <b>${esc(x.name)}</b>
+      </td>
+      <td data-label="Khoa / Lớp">${esc(x.faculty)}<br><b>${esc(x.className)}</b> ${x.course?`• ${esc(x.course)}`:""}</td>
+      <td data-label="SĐT">${esc(x.phone)}</td>
+      <td data-label="Ban đăng ký">
+        ${registeredBans.map(b=>{
+          const isThisAssigned = x.assignedBan === b;
+          return `<span class="pill ${isThisAssigned ? 'assigned' : ''}">${esc(b)}${isThisAssigned ? ' (Đã chốt)' : ''}</span>`;
+        }).join(" ")}
+      </td>
+      <td data-label="Trạng thái">
+        ${isAssignedToThis ? 
+          `<span class="pill assigned">✓ Đã chốt ban này</span>` : 
+          `<button class="btn-sm btn-success" onclick="event.stopPropagation(); assignBan('${x.id}', '${esc(sectionBan)}')">Chốt ban này</button>`
+        }
+      </td>
+      <td data-label="Thời gian">${esc(x.updatedAt || x.createdAt)}</td>
+      <td data-label="Thao tác" style="text-align:right" onclick="event.stopPropagation()">
+        <button class="btn-sm btn-outline-danger" onclick="deleteSingle('${x.id}')">Xóa</button>
+      </td>
+    </tr>
+    <tr id="detail_${rowId}" class="row-detail hidden">
+      <td colspan="9">
+        <div class="detail-box">
+          <div class="detail-item">
+            <label>Lý do lựa chọn ban</label>
+            <div>${esc(x.reason || "Chưa nhập")}</div>
+          </div>
+          <div class="detail-item">
+            <label>Điểm mạnh & Kỹ năng</label>
+            <div>${esc(x.strengths || "Chưa nhập")}</div>
+          </div>
+          <div class="detail-item">
+            <label>Mong muốn học hỏi</label>
+            <div>${esc(x.expectation || "Chưa nhập")}</div>
+          </div>
+          <div class="detail-item" style="grid-column:1/-1">
+            <label>Quản lý chốt ban cho ứng viên này</label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+              ${registeredBans.map(b => {
+                const isSelected = x.assignedBan === b;
+                return isSelected ? 
+                  `<button class="btn-sm btn-primary" onclick="assignBan('${x.id}', null)">✓ Đang ở: ${esc(b)} (Bấm để bỏ chốt)</button>` :
+                  `<button class="btn-sm" onclick="assignBan('${x.id}', '${esc(b)}')">Chốt vào: ${esc(b)}</button>`;
+              }).join("")}
+              ${x.assignedBan ? `<button class="btn-sm btn-outline-danger" onclick="assignBan('${x.id}', null)">Bỏ chốt (hiển thị lại cả 2 ban)</button>` : ''}
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join("")}</tbody></table></div>`;
+}
+
+function getSelectedIds(){
+  return [...document.querySelectorAll('.row-select:checked')].map(cb=>cb.value);
+}
+
+function updateBulkBar(){
+  const ids = getSelectedIds();
+  const bar = document.getElementById('bulkBar');
+  const countEl = document.getElementById('selectedCount');
+  if(countEl) countEl.textContent = ids.length;
+  if(bar){
+    bar.classList.toggle('hidden', ids.length === 0);
+  }
+}
+
+function deselectAll(){
+  document.querySelectorAll('.row-select, .group-select-all').forEach(cb => cb.checked = false);
+  updateBulkBar();
+}
+
+function toggleSelectGroup(el){
+  const table = el.closest('table');
+  if(!table) return;
+  table.querySelectorAll('.row-select').forEach(cb => cb.checked = el.checked);
+  updateBulkBar();
+}
+
+async function assignBan(id, assignedBan){
+  if(canTryApi() && adminCredentials){
+    try{
+      await apiRequest("/api/admin", {action:"assign_ban", ids:[id], assignedBan, ...adminCredentials});
+      await render();
+      return;
+    }catch(err){
+      if(!apiMissing(err)){
+        console.error(err);
+        alert("Lỗi khi chốt ban.");
+        return;
+      }
+    }
+  }
+  const arr = localData();
+  const target = arr.find(x => String(x.id) === String(id));
+  if(target){
+    target.assignedBan = assignedBan;
+    saveLocal(arr);
+  }
+  await render();
+}
+
+async function bulkChangeBan(){
+  const ids = getSelectedIds();
+  const newBan = document.getElementById('bulkBanTarget')?.value;
+  if(ids.length === 0){
+    alert("Vui lòng chọn ít nhất 1 ứng viên.");
+    return;
+  }
+  if(!newBan){
+    alert("Vui lòng chọn Ban cần chuyển đến.");
+    return;
+  }
+
+  if(canTryApi() && adminCredentials){
+    try{
+      await apiRequest("/api/admin", {action:"change_bans", ids, newBan, ...adminCredentials});
+      deselectAll();
+      await render();
+      return;
+    }catch(err){
+      if(!apiMissing(err)){
+        console.error(err);
+        alert("Lỗi khi đổi ban hàng loạt.");
+        return;
+      }
+    }
+  }
+
+  const arr = localData();
+  arr.forEach(x => {
+    if(ids.includes(String(x.id))){
+      x.bans = [newBan];
+      x.assignedBan = newBan;
+    }
+  });
+  saveLocal(arr);
+  deselectAll();
+  await render();
+}
+
+async function bulkDelete(){
+  const ids = getSelectedIds();
+  if(ids.length === 0){
+    alert("Vui lòng chọn ít nhất 1 ứng viên.");
+    return;
+  }
+  if(!confirm(`Bạn chắc chắn muốn xóa ${ids.length} ứng viên đã chọn?`)) return;
+
+  if(canTryApi() && adminCredentials){
+    try{
+      await apiRequest("/api/admin", {action:"delete_items", ids, ...adminCredentials});
+      deselectAll();
+      await render();
+      return;
+    }catch(err){
+      if(!apiMissing(err)){
+        console.error(err);
+        alert("Lỗi khi xóa ứng viên.");
+        return;
+      }
+    }
+  }
+
+  let arr = localData();
+  arr = arr.filter(x => !ids.includes(String(x.id)));
+  saveLocal(arr);
+  deselectAll();
+  await render();
+}
+
+async function deleteSingle(id){
+  if(!confirm("Bạn chắc chắn muốn xóa ứng viên này?")) return;
+
+  if(canTryApi() && adminCredentials){
+    try{
+      await apiRequest("/api/admin", {action:"delete_items", ids:[id], ...adminCredentials});
+      await render();
+      return;
+    }catch(err){
+      if(!apiMissing(err)){
+        console.error(err);
+        alert("Lỗi khi xóa ứng viên.");
+        return;
+      }
+    }
+  }
+
+  let arr = localData();
+  arr = arr.filter(x => String(x.id) !== String(id));
+  saveLocal(arr);
+  await render();
 }
 
 async function exportCSV(){

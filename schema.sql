@@ -9,6 +9,7 @@ create table if not exists registrations (
   reason text not null default '',
   strengths text not null default '',
   expectation text not null default '',
+  assigned_ban text default null,
   created_at text not null,
   updated_at text not null
 );

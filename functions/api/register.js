@@ -30,10 +30,15 @@ async function ensureSchema(db){
       reason text not null default '',
       strengths text not null default '',
       expectation text not null default '',
+      assigned_ban text default null,
       created_at text not null,
       updated_at text not null
     )
   `).run();
+
+  try{
+    await db.prepare("alter table registrations add column assigned_ban text default null").run();
+  }catch(err){}
 }
 
 export async function onRequestOptions(){
