@@ -315,32 +315,77 @@ footer{color:#64748b}
 .row-main{cursor:pointer}
 .row-main:hover{background:#f8fafc}
 .row-detail td{
-  background:#f8fafc;
-  padding:14px 18px;
-  border-bottom:1px solid #e2e8f0;
+  background:#f1f5f9;
+  padding:16px 20px;
+  border-bottom:2px solid #e2e8f0;
 }
 .detail-box{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
-  gap:14px;
-  background:#fff;
-  border:1px solid #e2e8f0;
-  border-radius:8px;
-  padding:14px;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
 }
-.detail-item label{
-  display:block;
+@media(max-width:1100px){
+  .detail-box{grid-template-columns:1fr}
+}
+.detail-card{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 4px 12px rgba(15,23,42,0.03);
+  display:flex;
+  flex-direction:column;
+}
+.detail-card.action-card{
+  grid-column:1 / -1;
+  background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border:1px solid #bae6fd;
+}
+.card-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
   font-size:12px;
   font-weight:800;
-  color:#64748b;
-  text-transform:uppercase;
+  color:#475569;
   letter-spacing:.5px;
-  margin-bottom:4px;
+  margin-bottom:10px;
+  border-bottom:1px dashed #cbd5e1;
+  padding-bottom:8px;
 }
-.detail-item div{
+.action-card .card-header{
+  color:#0369a1;
+  border-bottom-color:#93c5fd;
+}
+.card-body{
   color:#1e293b;
   font-size:14px;
-  line-height:1.55;
+  line-height:1.65;
+  white-space:pre-wrap;
+  word-break:break-word;
+  flex:1;
+}
+.action-buttons{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:4px;
+}
+.action-buttons .btn-sm{
+  min-height:36px;
+  padding:6px 14px;
+  font-size:13px;
+  font-weight:700;
+  border-radius:8px;
+}
+.btn-outline-primary{
+  border:1px solid #3b82f6;
+  color:#1d4ed8;
+  background:#fff;
+}
+.btn-outline-primary:hover{
+  background:#eff6ff;
 }
 
 #adminPage .container{
@@ -685,6 +730,7 @@ function normalizeRows(rows){
     reason:r.reason||"",
     strengths:r.strengths||"",
     expectation:r.expectation||"",
+    assignedBan:r.assignedBan || r.assigned_ban || null,
     createdAt:new Date(r.createdAt || r.created_at).toLocaleString("vi-VN"),
     updatedAt:new Date(r.updatedAt || r.updated_at || r.createdAt || r.created_at).toLocaleString("vi-VN"),
     _sortTime:new Date(r.updatedAt || r.updated_at || r.createdAt || r.created_at).getTime()
@@ -1151,28 +1197,28 @@ function table(arr, sectionBan){
     <tr id="detail_${rowId}" class="row-detail hidden">
       <td colspan="9">
         <div class="detail-box">
-          <div class="detail-item">
-            <label>Lý do lựa chọn ban</label>
-            <div>${esc(x.reason || "Chưa nhập")}</div>
+          <div class="detail-card">
+            <div class="card-header">🎯 LÝ DO LỰA CHỌN BAN</div>
+            <div class="card-body">${esc(x.reason || "Chưa nhập")}</div>
           </div>
-          <div class="detail-item">
-            <label>Điểm mạnh & Kỹ năng</label>
-            <div>${esc(x.strengths || "Chưa nhập")}</div>
+          <div class="detail-card">
+            <div class="card-header">⚡ ĐIỂM MẠNH & KỸ NĂNG</div>
+            <div class="card-body">${esc(x.strengths || "Chưa nhập")}</div>
           </div>
-          <div class="detail-item">
-            <label>Mong muốn học hỏi</label>
-            <div>${esc(x.expectation || "Chưa nhập")}</div>
+          <div class="detail-card">
+            <div class="card-header">💡 MONG MUỐN HỌC HỎI</div>
+            <div class="card-body">${esc(x.expectation || "Chưa nhập")}</div>
           </div>
-          <div class="detail-item" style="grid-column:1/-1">
-            <label>Quản lý chốt ban cho ứng viên này</label>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+          <div class="detail-card action-card">
+            <div class="card-header">📌 QUẢN LÝ CHỐT BAN CHO ỨNG VIÊN NÀY</div>
+            <div class="action-buttons">
               ${registeredBans.map(b => {
                 const isSelected = x.assignedBan === b;
                 return isSelected ? 
-                  `<button class="btn-sm btn-primary" onclick="assignBan('${x.id}', null)">✓ Đang ở: ${esc(b)} (Bấm để bỏ chốt)</button>` :
-                  `<button class="btn-sm" onclick="assignBan('${x.id}', '${esc(b)}')">Chốt vào: ${esc(b)}</button>`;
+                  `<button class="btn-sm btn-primary" onclick="assignBan('${x.id}', null)">✓ Đang chốt: ${esc(b)} (Bấm để hủy chốt)</button>` :
+                  `<button class="btn-sm btn-outline-primary" onclick="assignBan('${x.id}', '${esc(b)}')">Chốt vào: ${esc(b)}</button>`;
               }).join("")}
-              ${x.assignedBan ? `<button class="btn-sm btn-outline-danger" onclick="assignBan('${x.id}', null)">Bỏ chốt (hiển thị lại cả 2 ban)</button>` : ''}
+              ${x.assignedBan ? `<button class="btn-sm btn-outline-danger" onclick="assignBan('${x.id}', null)">Bỏ chốt (hiển thị lại ở cả 2 ban)</button>` : ''}
             </div>
           </div>
         </div>
