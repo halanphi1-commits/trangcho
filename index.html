@@ -255,27 +255,60 @@ footer{color:#64748b}
 
 .bulk-bar{
   position:fixed;
-  bottom:24px;
+  bottom:28px;
   left:50%;
   transform:translateX(-50%);
-  background:#0f172a;
-  color:#fff;
-  padding:12px 20px;
-  border-radius:12px;
-  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  background:rgba(255, 255, 255, 0.96);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  color:#1e293b;
+  padding:10px 20px;
+  border-radius:16px;
+  border:1px solid #93c5fd;
+  box-shadow:0 20px 40px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(18, 104, 196, 0.1);
   display:flex;
   align-items:center;
-  gap:12px;
-  z-index:999;
+  gap:14px;
+  z-index:9999;
   font-size:14px;
+  animation:slideUp .25s ease-out;
+}
+@keyframes slideUp {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+.bulk-count-badge{
+  background:#1e3a8a;
+  color:#ffffff;
+  padding:5px 12px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:13px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
 }
 .bulk-bar select{
-  min-height:36px;
-  padding:4px 8px;
-  border-radius:6px;
-  background:#1e293b;
-  color:#fff;
-  border:1px solid #334155;
+  min-height:38px;
+  padding:4px 12px;
+  border-radius:10px;
+  background:#ffffff;
+  color:#1e293b;
+  border:1px solid #cbd5e1;
+  font-size:13px;
+  font-weight:600;
+  outline:none;
+}
+.bulk-bar select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(18, 104, 196, 0.12);
+}
+.bulk-bar .btn-sm{
+  min-height:38px;
+  padding:6px 14px;
+  font-size:13px;
+  font-weight:700;
+  border-radius:10px;
 }
 .btn-sm{
   min-height:32px;
@@ -635,10 +668,26 @@ tbody tr:last-child td{border-bottom:0}
       </div>
 
       <div class="stats">
-        <div class="stat">Tổng đăng ký<b id="total">0</b></div>
-        <div class="stat">Truyền thông<b id="mediaCount">0</b></div>
-        <div class="stat">Hậu cần<b id="logisticCount">0</b></div>
-        <div class="stat">Xung kích - Văn nghệ<b id="actionCount">0</b></div>
+        <div class="stat">
+          <div class="stat-label">Tổng đăng ký</div>
+          <b id="total">0</b>
+          <div class="stat-sub" id="statTotalSub"><span class="badge-assigned">✓ 0 đã chốt</span> • <span class="badge-pending">0 chưa chốt</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Truyền thông</div>
+          <b id="mediaCount">0</b>
+          <div class="stat-sub" id="statMediaSub"><span class="badge-assigned">✓ 0 đã chốt</span> • <span class="badge-pending">0 chờ duyệt</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Hậu cần</div>
+          <b id="logisticCount">0</b>
+          <div class="stat-sub" id="statLogisticSub"><span class="badge-assigned">✓ 0 đã chốt</span> • <span class="badge-pending">0 chờ duyệt</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Xung kích - Văn nghệ</div>
+          <b id="actionCount">0</b>
+          <div class="stat-sub" id="statActionSub"><span class="badge-assigned">✓ 0 đã chốt</span> • <span class="badge-pending">0 chờ duyệt</span></div>
+        </div>
       </div>
 
       <div class="card">
@@ -656,16 +705,16 @@ tbody tr:last-child td{border-bottom:0}
       </div>
 
       <div id="bulkBar" class="bulk-bar hidden">
-        <span>Đã chọn <b id="selectedCount">0</b> ứng viên</span>
+        <span class="bulk-count-badge">✓ Đã chọn <b id="selectedCount">0</b> ứng viên</span>
         <select id="bulkBanTarget" aria-label="Ban chuyển tới">
           <option value="">-- Chọn ban chuyển đến --</option>
           <option>Ban Truyền thông</option>
           <option>Ban Hậu cần</option>
           <option>Ban Xung kích - Văn nghệ</option>
         </select>
-        <button class="btn-sm btn-primary" onclick="bulkChangeBan()">Đổi Ban</button>
+        <button class="btn-sm btn-primary" onclick="bulkChangeBan()">Chuyển Ban</button>
         <button class="btn-sm btn-danger" onclick="bulkDelete()">Xóa đã chọn</button>
-        <button class="btn-sm" style="background:#334155;color:#fff;border-color:#475569" onclick="deselectAll()">Bỏ chọn</button>
+        <button class="btn-sm secondary" onclick="deselectAll()">Hủy chọn</button>
       </div>
     </div>
   </div>
@@ -1098,10 +1147,32 @@ async function render(){
     return (!q || hay.includes(q)) && (!ban || (x.bans||[]).includes(ban));
   });
 
-  document.getElementById('total').textContent=all.length;
-  document.getElementById('mediaCount').textContent=all.filter(x=>(x.bans||[]).includes("Ban Truyền thông")).length;
-  document.getElementById('logisticCount').textContent=all.filter(x=>(x.bans||[]).includes("Ban Hậu cần")).length;
-  document.getElementById('actionCount').textContent=all.filter(x=>(x.bans||[]).includes("Ban Xung kích - Văn nghệ")).length;
+  const totalAssigned = all.filter(x => !!x.assignedBan).length;
+  const totalUnassigned = all.length - totalAssigned;
+
+  const mediaAll = all.filter(x => (x.bans||[]).includes("Ban Truyền thông"));
+  const mediaAssigned = mediaAll.filter(x => x.assignedBan === "Ban Truyền thông").length;
+  const mediaPending = mediaAll.filter(x => !x.assignedBan).length;
+
+  const logisticAll = all.filter(x => (x.bans||[]).includes("Ban Hậu cần"));
+  const logisticAssigned = logisticAll.filter(x => x.assignedBan === "Ban Hậu cần").length;
+  const logisticPending = logisticAll.filter(x => !x.assignedBan).length;
+
+  const actionAll = all.filter(x => (x.bans||[]).includes("Ban Xung kích - Văn nghệ"));
+  const actionAssigned = actionAll.filter(x => x.assignedBan === "Ban Xung kích - Văn nghệ").length;
+  const actionPending = actionAll.filter(x => !x.assignedBan).length;
+
+  document.getElementById('total').textContent = all.length;
+  document.getElementById('statTotalSub').innerHTML = `<span class="badge-assigned">✓ <b>${totalAssigned}</b> đã chốt</span> • <span class="badge-pending"><b>${totalUnassigned}</b> chưa chốt</span>`;
+
+  document.getElementById('mediaCount').textContent = mediaAll.length;
+  document.getElementById('statMediaSub').innerHTML = `<span class="badge-assigned">✓ <b>${mediaAssigned}</b> đã chốt</span> • <span class="badge-pending"><b>${mediaPending}</b> chờ duyệt</span>`;
+
+  document.getElementById('logisticCount').textContent = logisticAll.length;
+  document.getElementById('statLogisticSub').innerHTML = `<span class="badge-assigned">✓ <b>${logisticAssigned}</b> đã chốt</span> • <span class="badge-pending"><b>${logisticPending}</b> chờ duyệt</span>`;
+
+  document.getElementById('actionCount').textContent = actionAll.length;
+  document.getElementById('statActionSub').innerHTML = `<span class="badge-assigned">✓ <b>${actionAssigned}</b> đã chốt</span> • <span class="badge-pending"><b>${actionPending}</b> chờ duyệt</span>`;
 
   const sections=buildBanGroups(filtered);
   let out="";
