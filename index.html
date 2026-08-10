@@ -242,6 +242,7 @@ small{color:#64748b}
 .toolbar input,.toolbar select{min-width:0}
 .group{border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 7px 24px rgba(22,78,130,.06)}
 .table-wrap{border:1px solid #e7edf4;border-radius:var(--radius);overflow-x:auto}
+.table-wrap table{min-width:1080px}
 th,td{padding:12px}
 th{font-size:13px}
 td{font-size:14px;color:#334155}
@@ -276,7 +277,7 @@ footer{color:#64748b}
   .admin-head h1{font-size:24px}
   .admin-head>div,.admin-head button,.toolbar .danger{width:100%}
   .login{margin:3vh auto}
-  table{min-width:0}
+  table,.table-wrap table{min-width:0}
   thead{display:none}
   table,tbody,tr,td{display:block;width:100%}
   tr{padding:10px 0;border-bottom:1px solid #e7edf4}
@@ -286,8 +287,10 @@ footer{color:#64748b}
   td:nth-child(2)::before{content:"Khoa / Lớp"}
   td:nth-child(3)::before{content:"SĐT"}
   td:nth-child(4)::before{content:"Ban"}
-  td:nth-child(5)::before{content:"Điểm mạnh"}
-  td:nth-child(6)::before{content:"Thời gian"}
+  td:nth-child(5)::before{content:"Lý do"}
+  td:nth-child(6)::before{content:"Điểm mạnh"}
+  td:nth-child(7)::before{content:"Muốn học hỏi"}
+  td:nth-child(8)::before{content:"Thời gian"}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -365,20 +368,20 @@ footer{color:#64748b}
         </div>
 
         <div class="section-title"><span>3</span> Bạn muốn tham gia ban nào?</div>
-        <div class="ban-note">Bạn có thể chọn <b>tối đa 2 ban</b> nếu còn phân vân.</div>
+        <div class="ban-note">Bạn chỉ chọn <b>1 ban</b> phù hợp nhất với mình.</div>
         <div class="bans">
           <label class="ban blue">
-            <input type="checkbox" name="ban" value="Ban Truyền thông">
+            <input type="radio" name="ban" value="Ban Truyền thông">
             <strong>Ban Truyền thông</strong>
             <small>Chụp ảnh, quay video, thiết kế, sáng tạo nội dung.</small>
           </label>
           <label class="ban green">
-            <input type="checkbox" name="ban" value="Ban Hậu cần">
+            <input type="radio" name="ban" value="Ban Hậu cần">
             <strong>Ban Hậu cần</strong>
             <small>Tổ chức, sắp xếp, chuẩn bị vật dụng và hỗ trợ chương trình.</small>
           </label>
           <label class="ban red">
-            <input type="checkbox" name="ban" value="Ban Xung kích - Văn nghệ">
+            <input type="radio" name="ban" value="Ban Xung kích - Văn nghệ">
             <strong>Ban Xung kích - Văn nghệ</strong>
             <small>Biểu diễn, hoạt náo, giao lưu và lan tỏa năng lượng.</small>
           </label>
@@ -396,8 +399,8 @@ footer{color:#64748b}
             <textarea name="strengths" aria-label="Điểm mạnh và kỹ năng" placeholder="Ví dụ: Từng học vẽ, hay nấu nướng, biết chụp ảnh, thích thiết kế, ca hát, MC..."></textarea>
           </div>
           <div class="field full">
-            <label>Nếu trở thành thành viên, bạn muốn đóng góp và học hỏi điều gì?</label>
-            <textarea name="expectation" aria-label="Mong muốn đóng góp và học hỏi" placeholder="Ví dụ: Muốn học thêm kỹ năng tổ chức, đóng góp ý tưởng, hỗ trợ các chương trình..."></textarea>
+            <label>Nếu trở thành thành viên, bạn muốn học hỏi điều gì?</label>
+            <textarea name="expectation" aria-label="Mong muốn học hỏi" placeholder="Ví dụ: Muốn học thêm kỹ năng tổ chức, giao tiếp, làm việc nhóm..."></textarea>
           </div>
         </div>
 
@@ -548,16 +551,10 @@ function normalizeRows(rows){
   }));
 }
 
-document.querySelectorAll('.ban input[type="checkbox"]').forEach(input=>{
+document.querySelectorAll('.ban input[name="ban"]').forEach(input=>{
   input.addEventListener('change',()=>{
-    let checked=[...document.querySelectorAll('.ban input[type="checkbox"]:checked')];
-    if(checked.length>2){
-      input.checked=false;
-      alert("Bạn chỉ có thể chọn tối đa 2 ban.");
-      checked=[...document.querySelectorAll('.ban input[type="checkbox"]:checked')];
-    }
     document.querySelectorAll('.ban').forEach(label=>{
-      const box=label.querySelector('input[type="checkbox"]');
+      const box=label.querySelector('input[name="ban"]');
       label.classList.toggle('selected', !!box?.checked);
     });
   });
@@ -643,9 +640,9 @@ async function saveRegistration(data){
 document.getElementById('registerForm').addEventListener('submit', async e=>{
   e.preventDefault();
 
-  const selectedBans=[...document.querySelectorAll('.ban input[type="checkbox"]:checked')].map(x=>x.value);
+  const selectedBans=[...document.querySelectorAll('.ban input[name="ban"]:checked')].map(x=>x.value);
   if(selectedBans.length===0){
-    alert("Bạn hãy chọn ít nhất 1 ban.");
+    alert("Bạn hãy chọn 1 ban phù hợp nhất.");
     return;
   }
 
@@ -933,20 +930,22 @@ async function render(){
 
 function table(arr){
   return `<div class="table-wrap"><table><thead><tr>
-    <th>Họ tên</th><th>Khoa / Lớp</th><th>SĐT</th><th>Ban</th><th>Điểm mạnh</th><th>Thời gian</th>
+    <th>Họ tên</th><th>Khoa / Lớp</th><th>SĐT</th><th>Ban</th><th>Lý do</th><th>Điểm mạnh</th><th>Muốn học hỏi</th><th>Thời gian</th>
   </tr></thead><tbody>${arr.map(x=>`<tr>
     <td data-label="Họ tên"><b>${esc(x.name)}</b></td>
-    <td>${esc(x.faculty)}<br><b>${esc(x.className)}</b> ${x.course?`• ${esc(x.course)}`:""}</td>
+    <td data-label="Khoa / Lớp">${esc(x.faculty)}<br><b>${esc(x.className)}</b> ${x.course?`• ${esc(x.course)}`:""}</td>
     <td data-label="SĐT">${esc(x.phone)}</td>
-    <td>${(x.bans||[]).map(b=>`<span class="pill">${esc(b)}</span>`).join(" ")}</td>
-    <td>${esc(x.strengths)}</td>
-    <td>${esc(x.updatedAt || x.createdAt)}</td>
+    <td data-label="Ban">${(x.bans||[]).map(b=>`<span class="pill">${esc(b)}</span>`).join(" ")}</td>
+    <td data-label="Lý do">${esc(x.reason || "Chưa nhập")}</td>
+    <td data-label="Điểm mạnh">${esc(x.strengths || "Chưa nhập")}</td>
+    <td data-label="Muốn học hỏi">${esc(x.expectation || "Chưa nhập")}</td>
+    <td data-label="Thời gian">${esc(x.updatedAt || x.createdAt)}</td>
   </tr>`).join("")}</tbody></table></div>`;
 }
 
 async function exportCSV(){
   const arr=await getData();
-  const headers=["Họ tên","SĐT","Khoa","Lớp","Khóa","Ban đã chọn","Lý do","Điểm mạnh","Mong muốn đóng góp/học hỏi","Thời gian"];
+  const headers=["Họ tên","SĐT","Khoa","Lớp","Khóa","Ban đã chọn","Lý do","Điểm mạnh","Muốn học hỏi","Thời gian"];
   const rows=arr.map(x=>[
     x.name,x.phone,x.faculty,x.className,x.course,
     (x.bans||[]).join(" | "),
