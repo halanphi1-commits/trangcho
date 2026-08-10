@@ -1,0 +1,4 @@
+local-server*.log
+index(*).html
+.DS_Store
+Thumbs.db

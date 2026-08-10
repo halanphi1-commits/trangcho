@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLB Thanh niên Tình nguyện - Đăng ký thành viên</title>
+<style>
+:root{
+  --blue:#1268c4; --blue2:#0b4f9c; --red:#ed2024; --green:#31a64a;
+  --yellow:#f4c31b; --ink:#17365d; --bg:#f5f9ff; --white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#18324f}
+button,input,select,textarea{font:inherit}
+.container{width:min(1100px,92%);margin:auto}
+.hero{background:linear-gradient(135deg,#0b58ad,#1785df);color:white;padding:28px 0 54px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:330px;height:330px;border:55px solid rgba(255,255,255,.09);border-radius:50%;right:-130px;top:-170px;pointer-events:none;z-index:0}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;position:relative;z-index:2}
+.brand{font-weight:900;font-size:20px;letter-spacing:.3px}
+.admin-link{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:9px 15px;cursor:pointer;position:relative;z-index:3;pointer-events:auto}
+.hero-main{text-align:center;padding:48px 0 10px;position:relative;z-index:1}
+.badge{display:inline-block;background:#fff;color:var(--blue);font-weight:800;border-radius:999px;padding:8px 15px;margin-bottom:14px}
+.hero h1{font-size:clamp(30px,5vw,54px);margin:8px 0}
+.hero p{font-size:17px;max-width:700px;margin:0 auto;line-height:1.6}
+.card{background:#fff;border-radius:20px;box-shadow:0 12px 35px rgba(22,78,130,.10);padding:28px}
+.form-wrap{margin-top:-28px;position:relative}
+h2{color:var(--ink);margin-top:0}
+.ban input{position:absolute;opacity:0;pointer-events:none}
+.ban.selected{transform:translateY(-1px);box-shadow:0 5px 15px rgba(18,104,196,.08)}
+
+.compact-guides{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.compact-guide{border:1px solid #d7e3ef;border-radius:13px;padding:13px 14px;background:#fff;line-height:1.45;font-size:14px}
+.compact-guide.blue{border-top:4px solid var(--blue);background:#f5f9ff}
+.compact-guide.green{border-top:4px solid var(--green);background:#f4fbf5}
+.compact-guide.red{border-top:4px solid var(--red);background:#fff6f6}
+.guide-head{font-weight:900;margin-bottom:7px}
+.compact-guide.blue .guide-head{color:var(--blue)}
+.compact-guide.green .guide-head{color:var(--green)}
+.compact-guide.red .guide-head{color:var(--red)}
+.compact-guide div+div{margin-top:6px;color:#4e647b}
+.zalo-box{margin-top:18px;background:#eef7ff;border:1px solid #cfe4f7;border-radius:15px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.zalo-copy{line-height:1.5}
+.zalo-title{font-weight:900;color:#1268c4;font-size:17px;margin-bottom:4px}
+.zalo-box img{width:105px;height:105px;object-fit:cover;border-radius:8px;background:#fff}
+.zalo-btn{display:inline-block;margin-top:9px;background:#1268c4;color:#fff;text-decoration:none;padding:8px 12px;border-radius:9px;font-weight:800;font-size:13px}
+
+@media(max-width:900px){
+  .ban-details{grid-template-columns:1fr}
+  .zalo-box{flex-direction:column;text-align:center}
+  .zalo-box img{width:190px;height:190px}
+}
+
+.section-title{display:flex;align-items:center;gap:10px;margin:28px 0 14px;font-size:20px;font-weight:900}
+.section-title span{display:grid;place-items:center;width:30px;height:30px;background:var(--blue);color:#fff;border-radius:9px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-weight:700;color:#23466f}
+.required{color:var(--red)}
+input,select,textarea{border:1px solid #cbd9e8;border-radius:11px;padding:12px 13px;outline:none;background:#fff;color:#18324f}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(18,104,196,.1)}
+textarea{min-height:105px;resize:vertical}
+.bans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ban{border:2px solid #dce6f0;border-radius:14px;padding:15px;cursor:pointer;transition:.2s;background:#fff;user-select:none;display:block}
+.ban input{position:absolute;opacity:0;pointer-events:none}
+.ban strong{display:block;font-size:16px}
+.ban small{color:#647b93;line-height:1.4}
+.ban.blue.selected{border-color:var(--blue);background:#eff7ff}
+.ban.green.selected{border-color:var(--green);background:#f0fbf2}
+.ban.red.selected{border-color:var(--red);background:#fff1f1}
+.actions{display:flex;justify-content:center;margin-top:26px}
+.primary{border:0;background:var(--blue);color:white;padding:14px 28px;border-radius:12px;font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(18,104,196,.2)}
+.primary:hover{background:var(--blue2)}
+.note{background:#f1f7ff;border-left:4px solid var(--blue);padding:12px 14px;border-radius:8px;color:#42617e;line-height:1.5}
+.success{display:none;text-align:center;padding:35px}
+.success .check{font-size:50px}
+footer{text-align:center;padding:28px;color:#6b8096}
+.hidden{display:none!important}
+
+/* admin */
+.admin-page{min-height:100vh;padding:30px 0}
+.admin-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{background:#fff;padding:18px;border-radius:15px;box-shadow:0 7px 24px rgba(22,78,130,.08)}
+.stat b{display:block;font-size:28px;color:var(--blue);margin-top:5px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.toolbar input,.toolbar select{min-width:170px}
+.group{background:#fff;border-radius:17px;padding:18px;margin:14px 0;box-shadow:0 7px 24px rgba(22,78,130,.07)}
+.group h3{margin:0 0 12px;color:var(--ink)}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th,td{padding:11px 10px;border-bottom:1px solid #e7edf4;text-align:left;vertical-align:top}
+th{background:#f4f8fc;color:#365674}
+.pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;background:#eef5ff;color:#1764ad}
+.login{max-width:420px;margin:10vh auto}
+.login h1{text-align:center}
+.danger{background:#fff0f0;color:#b51e22;border:1px solid #ffc7c7}
+.secondary{border:1px solid #cbd9e8;background:#fff;color:#31536f;padding:10px 14px;border-radius:10px;cursor:pointer}
+.empty{text-align:center;color:#72879b;padding:30px}
+@media(max-width:750px){
+  .grid,.bans,.stats{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .card{padding:20px}
+}
+
+/* Chọn ban: hiển thị trạng thái ngay cả khi JS chưa tải xong */
+.ban{position:relative}
+.ban::after{
+  content:"";
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:22px;
+  height:22px;
+  border:2px solid #b9c9d9;
+  border-radius:50%;
+  background:#fff;
+}
+.ban:has(input:checked)::after{
+  content:"✓";
+  display:grid;
+  place-items:center;
+  color:#fff;
+  background:#1268c4;
+  border-color:#1268c4;
+  font-size:14px;
+  font-weight:900;
+}
+.ban.blue:has(input:checked){border-color:var(--blue);background:#eff7ff}
+.ban.green:has(input:checked){border-color:var(--green);background:#f0fbf2}
+.ban.red:has(input:checked){border-color:var(--red);background:#fff1f1}
+
+</style>
+</head>
+<body>
+
+<section id="publicPage">
+  <header class="hero">
+    <div class="container">
+      <div class="nav">
+        <div class="brand">CLB THANH NIÊN TÌNH NGUYỆN</div>
+        <button class="admin-link" onclick="showAdmin()">🔐 Khu vực Admin</button>
+      </div>
+      <div class="hero-main">
+        <div class="badge">TUYỂN THÀNH VIÊN 2026</div>
+        <h1>Đăng ký tham gia CLB</h1>
+        <p>Nơi tuổi trẻ được sống hết mình, cống hiến, kết nối và trưởng thành.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container form-wrap">
+    <div class="card" id="formCard">
+      <h2>📋 Phiếu đăng ký thành viên</h2>
+      <div class="note">Hãy điền thông tin chính xác để Ban Chủ nhiệm có thể liên hệ và sắp xếp thành viên phù hợp.</div>
+
+      <form id="registerForm">
+        <div class="section-title"><span>1</span> Thông tin cá nhân</div>
+        <div class="grid">
+          <div class="field">
+            <label>Họ và tên <i class="required">*</i></label>
+            <input name="name" required placeholder="pham thúy trang">
+          </div>
+          <div class="field">
+            <label>Số điện thoại <i class="required">*</i></label>
+            <input name="phone" required inputmode="tel" placeholder="0327011851">
+            <small style="color:#71869b;line-height:1.4">Nếu bạn đã đăng ký trước đó bằng SĐT này, lần gửi mới sẽ tự động cập nhật và thay thế phiếu cũ.</small>
+          </div>
+          <div class="field">
+            <label>Khoa <i class="required">*</i></label>
+            <input name="faculty" required placeholder="thiết kế đồ họa">
+          </div>
+          <div class="field">
+            <label>Lớp <i class="required">*</i></label>
+            <input name="className" required placeholder="6Q0101">
+          </div>
+          <div class="field">
+            <label>Khóa <i class="required">*</i></label>
+            <input name="course" required placeholder="K50">
+          </div>
+          
+        </div>
+
+        <div class="section-title"><span>2</span> Tìm hiểu các ban trước khi chọn</div>
+        <div class="compact-guides">
+          <div class="compact-guide blue">
+            <div class="guide-head">📷 BAN TRUYỀN THÔNG</div>
+            <div>✨ Hợp với bạn thích chụp ảnh, quay video, thiết kế, sáng tạo nội dung.</div>
+            <div>🎁 Sau quá trình thực hành, sau này có người yêu <b>không còn bị nghe mắng vì chụp ảnh xấu nữa</b> 😆</div>
+          </div>
+          <div class="compact-guide green">
+            <div class="guide-head">🛠️ BAN HẬU CẦN</div>
+            <div>✨ Hợp với bạn cẩn thận, thích tổ chức, sắp xếp và hỗ trợ mọi người.</div>
+            <div>💪 Giúp bạn <b>nâng cao sức khỏe, nấu ăn ngon hơn</b> và rèn kỹ năng tổ chức.</div>
+          </div>
+          <div class="compact-guide red">
+            <div class="guide-head">🎤 BAN XUNG KÍCH - VĂN NGHỆ</div>
+            <div>✨ Hợp với bạn tự tin, năng động, yêu nghệ thuật, thích hoạt náo và giao lưu.</div>
+            <div>🗣️ Giúp <b>cải thiện kỹ năng giao tiếp, tự tin hơn</b> và mạnh dạn thể hiện bản thân.</div>
+          </div>
+        </div>
+
+        <div class="section-title"><span>3</span> Bạn muốn tham gia ban nào?</div>
+        <div class="ban-note">💡 Bạn có thể chọn <b>tối đa 2 ban</b> nếu còn phân vân.</div>
+        <div class="bans">
+          <label class="ban blue">
+            <input type="checkbox" name="ban" value="Ban Truyền thông">
+            <strong>📷 Ban Truyền thông</strong>
+            <small>Chụp ảnh, quay video, thiết kế, sáng tạo nội dung.</small>
+          </label>
+          <label class="ban green">
+            <input type="checkbox" name="ban" value="Ban Hậu cần">
+            <strong>🛠️ Ban Hậu cần</strong>
+            <small>Tổ chức, sắp xếp, chuẩn bị vật dụng và hỗ trợ chương trình.</small>
+          </label>
+          <label class="ban red">
+            <input type="checkbox" name="ban" value="Ban Xung kích - Văn nghệ">
+            <strong>🎤 Ban Xung kích - Văn nghệ</strong>
+            <small>Biểu diễn, hoạt náo, giao lưu và lan tỏa năng lượng.</small>
+          </label>
+        </div>
+
+
+        <div class="section-title"><span>4</span> Khám phá bản thân</div>
+        <div class="grid">
+          <div class="field full">
+            <label>Vì sao bạn lựa chọn ban này?</label>
+            <textarea name="reason" placeholder="Ví dụ: Muốn được thử sức, học hỏi thêm kỹ năng, làm quen với mọi người..."></textarea>
+          </div>
+          <div class="field full">
+            <label>Điểm mạnh, kỹ năng, sở thích hoặc năng khiếu bạn tự tin nhất</label>
+            <textarea name="strengths" placeholder="Ví dụ: Từng học vẽ, hay nấu nướng, biết chụp ảnh, thích thiết kế, ca hát, MC..."></textarea>
+          </div>
+          <div class="field full">
+            <label>Nếu trở thành thành viên, bạn muốn đóng góp và học hỏi điều gì?</label>
+            <textarea name="expectation" placeholder="Ví dụ: Muốn học thêm kỹ năng tổ chức, đóng góp ý tưởng, hỗ trợ các chương trình..."></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="submit">🚀 Gửi đăng ký</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card success" id="successCard">
+      <div class="check">🎉</div>
+      <h2>Bạn đã đăng ký thành công!</h2>
+      <p>Cảm ơn bạn đã gửi phiếu đăng ký tham gia CLB. Ban Chủ nhiệm sẽ liên hệ với bạn khi có thông tin tiếp theo.</p>
+
+      <div class="zalo-box" style="margin-top:22px;text-align:left">
+        <div class="zalo-copy">
+          <div class="zalo-title">💬 Bước cuối: Tham gia nhóm Zalo K50</div>
+          <div>Nhấn nút bên dưới để vào nhóm và cập nhật thông tin tuyển thành viên.</div>
+          <a class="zalo-btn" href="https://zalo.me/g/aathigkjagxqxoplwlcu" target="_blank" rel="noopener">🔗 Sang nhóm Zalo</a>
+        </div>
+        <img src="qr_zalo_k50.jpg" alt="Mã QR nhóm Zalo K50" onerror="this.style.display='none'">
+      </div>
+
+      <div style="margin-top:18px">
+        <button class="secondary" onclick="location.reload()">Đăng ký lại / cập nhật thông tin</button>
+      </div>
+    </div>
+  </main>
+  <footer>CLB Thanh niên Tình nguyện • Tuyển thành viên 2026</footer>
+</section>
+
+<section id="adminPage" class="hidden admin-page">
+  <div class="container">
+    <div id="loginBox" class="card login">
+      <h1>🔐 Admin CLB</h1>
+      <p class="note">Khu vực dành cho Admin CLB. Đăng nhập đúng tài khoản để xem danh sách đăng ký online.</p>
+      <div class="field">
+        <label>Tên đăng nhập Admin</label>
+        <input id="adminUser" value="admin" autocomplete="username" placeholder="admin">
+      </div><br>
+      <div class="field">
+        <label>Mật khẩu</label>
+        <div style="display:flex;gap:8px">
+          <input id="adminPass" type="password" placeholder="Nhập mật khẩu" style="flex:1">
+          <button class="secondary" type="button" onclick="toggleAdminPass()">👁️</button>
+        </div>
+      </div><br>
+      <button class="primary" style="width:100%" onclick="login()">Đăng nhập</button>
+      <p id="loginError" style="color:#c62828;text-align:center"></p>
+      <button class="secondary" style="width:100%" onclick="showPublic()">← Quay lại trang đăng ký</button>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <div class="admin-head">
+        <div><h1 style="margin:0;color:var(--ink)">📊 Danh sách ứng viên CLB</h1><small>Quản lý theo ban + khóa + lớp • Tự động lọc trùng theo SĐT, chỉ giữ bản mới nhất</small></div>
+        <div>
+          <button class="secondary" onclick="exportCSV()">⬇ Xuất Excel/CSV</button>
+          <button class="secondary" onclick="logout()">Đăng xuất</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">Tổng đăng ký<b id="total">0</b></div>
+        <div class="stat">Truyền thông<b id="mediaCount">0</b></div>
+        <div class="stat">Hậu cần<b id="logisticCount">0</b></div>
+        <div class="stat">Xung kích - Văn nghệ<b id="actionCount">0</b></div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input id="search" placeholder="🔎 Tìm tên, SĐT, khoa, lớp..." oninput="render()">
+          <select id="filterBan" onchange="render()">
+            <option value="">Tất cả các ban</option>
+            <option>Ban Truyền thông</option>
+            <option>Ban Hậu cần</option>
+            <option>Ban Xung kích - Văn nghệ</option>
+          </select>
+          <button class="secondary danger" onclick="clearAll()">Xóa toàn bộ dữ liệu</button>
+        </div>
+        <div id="groups"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "PASTE_SUPABASE_URL_HERE";
+const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "CLB2026!";
+const LOCAL_KEY = "clb_tnv_2026_registrations";
+
+let sb = null;
+let adminUnlocked = sessionStorage.getItem("clb_admin_unlocked") === "1";
+
+function supabaseConfigured(){
+  return !!(
+    SUPABASE_URL &&
+    SUPABASE_ANON_KEY &&
+    !SUPABASE_URL.includes("PASTE_") &&
+    !SUPABASE_ANON_KEY.includes("PASTE_")
+  );
+}
+
+function initSupabase(){
+  if(!supabaseConfigured()) return false;
+  if(typeof window.supabase === "undefined") return false;
+  try{
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return true;
+  }catch(err){
+    console.error(err);
+    sb = null;
+    return false;
+  }
+}
+initSupabase();
+
+function localData(){
+  try{return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");}
+  catch(e){return [];}
+}
+function saveLocal(arr){
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(arr));
+}
+
+document.querySelectorAll('.ban input[type="checkbox"]').forEach(input=>{
+  input.addEventListener('change',()=>{
+    let checked=[...document.querySelectorAll('.ban input[type="checkbox"]:checked')];
+    if(checked.length>2){
+      input.checked=false;
+      alert("Bạn chỉ có thể chọn tối đa 2 ban.");
+      checked=[...document.querySelectorAll('.ban input[type="checkbox"]:checked')];
+    }
+    document.querySelectorAll('.ban').forEach(label=>{
+      const box=label.querySelector('input[type="checkbox"]');
+      label.classList.toggle('selected', !!box?.checked);
+    });
+  });
+});
+
+async function saveRegistration(data){
+  const normalizedPhone = normalizePhone(data.phone);
+
+  if(sb){
+    // SĐT là khóa nhận diện: đăng ký lại cùng SĐT sẽ CẬP NHẬT hồ sơ mới nhất,
+    // không tạo thêm một ứng viên trùng.
+    const payload = {
+      name:data.name,
+      phone:normalizedPhone,
+      faculty:data.faculty,
+      class_name:data.className,
+      course:data.course,
+      bans:data.bans,
+      reason:data.reason || "",
+      strengths:data.strengths || "",
+      expectation:data.expectation || "",
+      updated_at:new Date().toISOString()
+    };
+
+    let { error } = await sb.rpc("submit_registration", {
+      p_name:payload.name,
+      p_phone:payload.phone,
+      p_faculty:payload.faculty,
+      p_class_name:payload.class_name,
+      p_course:payload.course,
+      p_bans:payload.bans,
+      p_reason:payload.reason,
+      p_strengths:payload.strengths,
+      p_expectation:payload.expectation
+    });
+
+    if(error){
+      console.warn("submit_registration RPC unavailable, falling back to upsert.", error);
+      const result = await sb
+        .from("registrations")
+        .upsert(payload, { onConflict:"phone" });
+      error = result.error;
+    }
+
+    if(error) throw error;
+    return;
+  }
+
+  // Chế độ local để test: cũng cập nhật theo SĐT.
+  const arr=localData().filter(x=>normalizePhone(x.phone)!==normalizedPhone);
+  const record={
+    ...data,
+    phone:normalizedPhone,
+    id:String(Date.now()),
+    createdAt:new Date().toLocaleString("vi-VN"),
+    updatedAt:new Date().toLocaleString("vi-VN")
+  };
+
+  arr.push(record);
+  saveLocal(arr);
+}
+
+document.getElementById('registerForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+
+  const selectedBans=[...document.querySelectorAll('.ban input[type="checkbox"]:checked')].map(x=>x.value);
+  if(selectedBans.length===0){
+    alert("Bạn hãy chọn ít nhất 1 ban.");
+    return;
+  }
+
+  const btn=e.target.querySelector('button[type="submit"]');
+  const oldText=btn.textContent;
+  btn.disabled=true;
+  btn.textContent="⏳ Đang gửi...";
+
+  try{
+    const f=new FormData(e.target);
+    const data=Object.fromEntries(f.entries());
+    data.bans=selectedBans;
+    delete data.ban;
+
+    await saveRegistration(data);
+
+    document.getElementById('formCard').classList.add('hidden');
+    document.getElementById('successCard').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    console.error(err);
+    alert("Không gửi được phiếu. Vui lòng thử lại.");
+  }finally{
+    btn.disabled=false;
+    btn.textContent=oldText;
+  }
+});
+
+function showAdmin(){
+  document.getElementById('publicPage').classList.add('hidden');
+  document.getElementById('adminPage').classList.remove('hidden');
+
+  if(adminUnlocked){
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    render();
+  }else{
+    document.getElementById('loginBox').classList.remove('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+  }
+}
+
+function showPublic(){
+  document.getElementById('adminPage').classList.add('hidden');
+  document.getElementById('publicPage').classList.remove('hidden');
+}
+
+function toggleAdminPass(){
+  const input=document.getElementById('adminPass');
+  input.type=input.type==="password" ? "text" : "password";
+}
+
+async function login(){
+  const username=document.getElementById('adminUser').value.trim();
+  const password=document.getElementById('adminPass').value;
+  const errorBox=document.getElementById('loginError');
+  errorBox.textContent="";
+
+  if(username !== ADMIN_USER || password !== ADMIN_PASS){
+    errorBox.textContent="Sai tên đăng nhập hoặc mật khẩu Admin.";
+    return;
+  }
+
+  adminUnlocked=true;
+  sessionStorage.setItem("clb_admin_unlocked","1");
+  document.getElementById('loginBox').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+
+  try{
+    await render();
+  }catch(err){
+    console.error(err);
+    document.getElementById('groups').innerHTML=
+      '<div class="empty">Đã đăng nhập Admin nhưng chưa tải được dữ liệu.</div>';
+  }
+}
+
+function logout(){
+  adminUnlocked=false;
+  sessionStorage.removeItem("clb_admin_unlocked");
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('loginBox').classList.remove('hidden');
+  document.getElementById('adminPass').value="";
+}
+
+document.getElementById('adminUser')?.addEventListener('keydown',e=>{
+  if(e.key==="Enter") login();
+});
+document.getElementById('adminPass')?.addEventListener('keydown',e=>{
+  if(e.key==="Enter") login();
+});
+
+async function getData(){
+  if(sb){
+    try{
+      // Mỗi lần Admin tải danh sách, hệ thống dọn các bản trùng SĐT cũ
+      // và chỉ giữ lại bản đăng ký mới nhất.
+      try{
+        await sb.rpc("admin_cleanup_duplicate_phones",{
+          p_username:ADMIN_USER,
+          p_password:ADMIN_PASS
+        });
+      }catch(cleanErr){
+        console.warn("Không chạy được cleanup RPC, vẫn tiếp tục lọc phía trình duyệt.", cleanErr);
+      }
+
+      const {data,error}=await sb.rpc("admin_get_registrations",{
+        p_username:ADMIN_USER,
+        p_password:ADMIN_PASS
+      });
+
+      if(!error){
+        const rows=(data||[]).map(r=>({
+          id:r.id,
+          name:r.name,
+          phone:r.phone,
+          faculty:r.faculty,
+          className:r.class_name,
+          course:r.course,
+          bans:r.bans||[],
+          reason:r.reason||"",
+          strengths:r.strengths||"",
+          expectation:r.expectation||"",
+          createdAt:new Date(r.created_at).toLocaleString("vi-VN"),
+          updatedAt:new Date(r.updated_at || r.created_at).toLocaleString("vi-VN"),
+          _sortTime:new Date(r.updated_at || r.created_at).getTime()
+        }));
+
+        return dedupeByPhone(rows).sort((a,b)=>(b._sortTime||0)-(a._sortTime||0));
+      }
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  // Chế độ local cũng lọc trùng SĐT, chỉ giữ bản mới nhất.
+  const cleaned = dedupeByPhone(localData());
+  saveLocal(cleaned);
+  return cleaned;
+}
+
+function norm(s){
+  return String(s||"").toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"").trim();
+}
+function esc(s){
+  return String(s||"").replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function normalizePhone(phone){
+  return String(phone||"").replace(/\D/g,"").trim();
+}
+
+function getRecordTime(item){
+  return new Date(
+    item.updatedAt || item.updated_at || item.createdAt || item.created_at || 0
+  ).getTime() || 0;
+}
+
+/* Lọc trùng theo SĐT:
+   - Nếu cùng SĐT xuất hiện nhiều lần, chỉ giữ bản mới nhất.
+   - Ưu tiên updatedAt/updated_at, sau đó createdAt/created_at.
+*/
+function dedupeByPhone(list){
+  const map = new Map();
+
+  list.forEach(item=>{
+    const phoneKey = normalizePhone(item.phone);
+    if(!phoneKey){
+      // Nếu hồ sơ không có SĐT thì không gộp nhầm với hồ sơ khác.
+      map.set(`__no_phone__${item.id||Math.random()}`, item);
+      return;
+    }
+
+    const old = map.get(phoneKey);
+    if(!old){
+      map.set(phoneKey, item);
+      return;
+    }
+
+    const oldTime = getRecordTime(old);
+    const newTime = getRecordTime(item);
+
+    if(newTime >= oldTime) map.set(phoneKey, item);
+  });
+
+  return [...map.values()].sort((a,b)=>getRecordTime(b)-getRecordTime(a));
+}
+
+function buildBanGroups(list){
+  const banNames=["Ban Truyền thông","Ban Hậu cần","Ban Xung kích - Văn nghệ"];
+  return banNames.map(ban=>{
+    const members=list.filter(x=>(x.bans||[]).includes(ban));
+    const map=new Map();
+    members.forEach(x=>{
+      const key=`${norm(x.course)}|||${norm(x.className)}`;
+      if(!map.has(key)) map.set(key,[]);
+      map.get(key).push(x);
+    });
+    return {ban,groups:[...map.values()]};
+  });
+}
+
+async function render(){
+  if(!adminUnlocked) return;
+
+  const all=await getData();
+  const q=norm(document.getElementById('search')?.value);
+  const ban=document.getElementById('filterBan')?.value || "";
+
+  const filtered=all.filter(x=>{
+    const hay=norm([x.name,x.phone,x.faculty,x.className,x.course].join(" "));
+    return (!q || hay.includes(q)) && (!ban || (x.bans||[]).includes(ban));
+  });
+
+  document.getElementById('total').textContent=all.length;
+  document.getElementById('mediaCount').textContent=all.filter(x=>(x.bans||[]).includes("Ban Truyền thông")).length;
+  document.getElementById('logisticCount').textContent=all.filter(x=>(x.bans||[]).includes("Ban Hậu cần")).length;
+  document.getElementById('actionCount').textContent=all.filter(x=>(x.bans||[]).includes("Ban Xung kích - Văn nghệ")).length;
+
+  const sections=buildBanGroups(filtered);
+  let out="";
+
+  sections.forEach(section=>{
+    const grouped=section.groups.filter(g=>g.length>1);
+    const solo=section.groups.filter(g=>g.length===1);
+    if(!grouped.length && !solo.length) return;
+
+    out+=`<div class="group"><h3>🎯 ${esc(section.ban)}</h3>`;
+
+    grouped.forEach((g,i)=>{
+      const x=g[0];
+      out+=`<div style="margin:14px 0 18px">
+        <b>👥 Nhóm ${i+1} — ${g.length} bạn</b>
+        <small style="color:#6c8298"> • ${esc(x.course||"Chưa rõ khóa")} • ${esc(x.className||"Chưa rõ lớp")}</small>
+        ${table(g)}
+      </div>`;
+    });
+
+    if(solo.length){
+      out+=`<div style="margin-top:14px">
+        <b>🧍 Chưa có bạn cùng lớp + khóa trong ban này — ${solo.length} bạn</b>
+        ${table(solo.flat())}
+      </div>`;
+    }
+
+    out+="</div>";
+  });
+
+  document.getElementById('groups').innerHTML=out || '<div class="empty">Chưa có dữ liệu đăng ký.</div>';
+}
+
+function table(arr){
+  return `<div class="table-wrap"><table><thead><tr>
+    <th>Họ tên</th><th>Khoa / Lớp</th><th>SĐT</th><th>Ban</th><th>Điểm mạnh</th><th>Thời gian</th>
+  </tr></thead><tbody>${arr.map(x=>`<tr>
+    <td><b>${esc(x.name)}</b></td>
+    <td>${esc(x.faculty)}<br><b>${esc(x.className)}</b> ${x.course?`• ${esc(x.course)}`:""}</td>
+    <td>${esc(x.phone)}</td>
+    <td>${(x.bans||[]).map(b=>`<span class="pill">${esc(b)}</span>`).join(" ")}</td>
+    <td>${esc(x.strengths)}</td>
+    <td>${esc(x.updatedAt || x.createdAt)}</td>
+  </tr>`).join("")}</tbody></table></div>`;
+}
+
+async function exportCSV(){
+  const arr=await getData();
+  const headers=["Họ tên","SĐT","Khoa","Lớp","Khóa","Ban đã chọn","Lý do","Điểm mạnh","Mong muốn đóng góp/học hỏi","Thời gian"];
+  const rows=arr.map(x=>[
+    x.name,x.phone,x.faculty,x.className,x.course,
+    (x.bans||[]).join(" | "),
+    x.reason,x.strengths,x.expectation,x.updatedAt || x.createdAt
+  ]);
+  const csv="\ufeff"+[headers,...rows]
+    .map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(","))
+    .join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download="danh-sach-dang-ky-clb-2026.csv";
+  a.click();
+}
+
+async function clearAll(){
+  if(!confirm("Bạn chắc chắn muốn xóa TOÀN BỘ danh sách đăng ký?")) return;
+
+  if(sb){
+    try{
+      const {error}=await sb.rpc("admin_delete_all_registrations",{
+        p_username:ADMIN_USER,
+        p_password:ADMIN_PASS
+      });
+      if(!error){ await render(); return; }
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  localStorage.removeItem(LOCAL_KEY);
+  await render();
+}
+
+if(adminUnlocked){
+  showAdmin();
+}
+</script>
+
+</body>
+</html>
